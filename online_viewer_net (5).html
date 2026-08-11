@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Unit 2 Assessment — Geometry & Transformations</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:ital,wght@0,400;0,700;1,400&family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0d0f14; --surface: #13161e; --surface2: #1a1e2a; --border: #252a38;
+    --blue: #3b82f6; --blue-glow: rgba(59,130,246,0.18); --cyan: #22d3ee;
+    --green: #10b981; --green-glow:rgba(16,185,129,0.18); --red: #ef4444;
+    --red-glow: rgba(239,68,68,0.18); --amber: #f59e0b; --text: #e2e8f0;
+    --text-dim: #64748b; --text-mid: #94a3b8; --mono: 'Space Mono', monospace;
+    --sans: 'Outfit', sans-serif;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body { background: var(--bg); color: var(--text); font-family: var(--sans); font-size: 16px; line-height: 1.6; min-height: 100vh; overflow-x: hidden; position: relative; }
+  body::before { content: ''; position: fixed; inset: 0; background-image: radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,.18) 0%, transparent 100%), radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,.12) 0%, transparent 100%), radial-gradient(2px 2px at 40% 40%, rgba(59,130,246,.2) 0%, transparent 100%); pointer-events: none; z-index: 0; }
+  .page-wrap { position: relative; z-index: 1; max-width: 860px; margin: 0 auto; padding: 40px 24px 80px; }
+  .hero { text-align: center; padding: 56px 0 48px; }
+  .hero-eyebrow { font-family: var(--mono); font-size: 11px; letter-spacing: 3px; text-transform: uppercase; color: var(--cyan); margin-bottom: 16px; }
+  .hero h1 { font-size: clamp(2rem, 5vw, 3.2rem); font-weight: 800; background: linear-gradient(135deg, #fff 30%, var(--cyan) 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; margin-bottom: 12px; }
+  .dashboard { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 48px; }
+  .dash-card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 14px; text-align: center; }
+  .dash-val { font-family: var(--mono); font-size: 2rem; font-weight: 700; color: var(--blue); }
+  .dash-label { font-size: 11px; color: var(--text-dim); text-transform: uppercase; margin-top: 6px; }
+  .progress-bar-wrap { background: var(--surface2); border: 1px solid var(--border); border-radius: 99px; height: 8px; margin-bottom: 40px; overflow: hidden; }
+  .progress-bar-fill { height: 100%; background: linear-gradient(90deg, var(--blue), var(--cyan)); width: 0%; transition: width .6s ease; }
+  .section { margin-bottom: 40px; }
+  .section-header { display: flex; align-items: center; gap: 14px; margin-bottom: 24px; padding-bottom: 16px; border-bottom: 1px solid var(--border); }
+  .section-badge { font-family: var(--mono); font-size: 11px; background: var(--blue); color: #fff; padding: 4px 10px; border-radius: 20px; }
+  .question-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 24px; margin-bottom: 16px; transition: 0.3s; }
+  .mc-grid { display: grid; gap: 8px; }
+  .mc-option { display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; cursor: pointer; user-select: none; }
+  .mc-option.selected { border-color: var(--blue); background: var(--blue-glow); }
+  .mc-option input { display: none; }
+  .text-input { background: var(--surface2); border: 1.5px solid var(--border); border-radius: 10px; padding: 12px 16px; color: var(--text); font-family: var(--mono); width: 100%; max-width: 400px; outline: none; }
+  .feedback-chip { display: none; margin-top: 14px; padding: 12px; border-radius: 8px; font-size: 13px; line-height: 1.4; }
+  .feedback-chip.show { display: flex; flex-direction: column; }
+  .feedback-chip.correct { background: var(--green-glow); color: var(--green); border: 1px solid rgba(16,185,129,0.2); }
+  .feedback-chip.incorrect { background: var(--red-glow); color: var(--red); border: 1px solid rgba(239,68,68,0.2); }
+  .results-panel { display: none; margin-top: 48px; background: var(--surface); border: 1px solid var(--border); border-radius: 20px; padding: 40px; text-align: center; }
+  .results-panel.show { display: block; }
+  .btn-submit { background: linear-gradient(135deg, var(--blue), var(--cyan)); color: white; border: none; padding: 20px; border-radius: 12px; font-weight: 700; width: 100%; cursor: pointer; font-size: 1.1rem; }
+  .mc-letter { width: 28px; height: 28px; border: 1px solid var(--border); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-family: var(--mono); font-size: 12px; }
+</style>
+</head>
+<body>
+
+<div class="page-wrap">
+  <div class="hero">
+    <p class="hero-eyebrow">8th Grade Math · Common Core</p>
+    <h1>Unit 2 Assessment: Geometry</h1>
+    <p class="hero-sub">Transformations, Congruence, and Angle Relationships (8.G.A.1–5)</p>
+  </div>
+
+  <div class="dashboard">
+    <div class="dash-card"><div class="dash-val" id="dash-answered">0</div><div class="dash-label">Answered</div></div>
+    <div class="dash-card"><div class="dash-val" id="dash-remaining">20</div><div class="dash-label">Remaining</div></div>
+    <div class="dash-card"><div class="dash-val" id="dash-score">—</div><div class="dash-label">Score</div></div>
+    <div class="dash-card"><div class="dash-val" id="dash-pct">—</div><div class="dash-label">Percentage</div></div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar-fill" id="progressFill"></div></div>
+
+  <form id="quizForm">
+    <div class="section">
+      <div class="section-header"><span class="section-badge">Part 1</span><span class="section-title">Rigid Transformations & Congruence</span></div>
+      
+      <div class="question-card" id="qcard-1">
+        <p class="q-text">1. A transformation that slides a figure without turning or flipping it is called a:</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q1','correct')"><input type="radio" name="q1" value="correct"><span class="mc-letter">A</span><span class="mc-label">Translation</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q1','wrong')"><input type="radio" name="q1" value="wrong"><span class="mc-letter">B</span><span class="mc-label">Reflection</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q1','wrong')"><input type="radio" name="q1" value="wrong"><span class="mc-letter">C</span><span class="mc-label">Rotation</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-1"></div>
+      </div>
+
+      <div class="question-card" id="qcard-2">
+        <p class="q-text">2. If point A(2, 5) is reflected across the <b>y-axis</b>, what are its new coordinates?</p>
+        <input class="text-input" id="q2" placeholder="e.g., (-2, 5)" oninput="handleTextInput('q2')">
+        <div class="feedback-chip" id="fb-2"></div>
+      </div>
+
+      <div class="question-card" id="qcard-3">
+        <p class="q-text">3. Rotate point B(1, 4) 90° counter-clockwise about the origin. What is the new location?</p>
+        <input class="text-input" id="q3" placeholder="e.g., (-4, 1)" oninput="handleTextInput('q3')">
+        <div class="feedback-chip" id="fb-3"></div>
+      </div>
+
+      <div class="question-card" id="qcard-4">
+        <p class="q-text">4. Which of these transformations does <b>not</b> preserve congruence?</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q4','wrong')"><input type="radio" name="q4" value="wrong"><span class="mc-letter">A</span><span class="mc-label">Reflection</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q4','correct')"><input type="radio" name="q4" value="correct"><span class="mc-letter">B</span><span class="mc-label">Dilation</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q4','wrong')"><input type="radio" name="q4" value="wrong"><span class="mc-letter">C</span><span class="mc-label">Rotation</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-4"></div>
+      </div>
+
+      <div class="question-card" id="qcard-5">
+        <p class="q-text">5. Figure A is translated 3 units left and 4 units up. Write the algebraic rule:</p>
+        <input class="text-input" id="q5" placeholder="(x - 3, y + 4)" oninput="handleTextInput('q5')">
+        <div class="feedback-chip" id="fb-5"></div>
+      </div>
+
+      <div class="question-card" id="qcard-6">
+        <p class="q-text">6. A reflection is often called a "flip" across a line of reflection. (True/False)</p>
+        <input class="text-input" id="q6" placeholder="True or False" oninput="handleTextInput('q6')">
+        <div class="feedback-chip" id="fb-6"></div>
+      </div>
+
+      <div class="question-card" id="qcard-7">
+        <p class="q-text">7. If two figures are congruent, their corresponding angles must be equal. (True/False)</p>
+        <input class="text-input" id="q7" placeholder="True or False" oninput="handleTextInput('q7')">
+        <div class="feedback-chip" id="fb-7"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><span class="section-badge">Part 2</span><span class="section-title">Dilations & Similarity</span></div>
+      
+      <div class="question-card" id="qcard-8">
+        <p class="q-text">8. A dilation uses a scale factor of <em>k = 3</em>. This is an enlargement. (True/False)</p>
+        <input class="text-input" id="q8" placeholder="True or False" oninput="handleTextInput('q8')">
+        <div class="feedback-chip" id="fb-8"></div>
+      </div>
+
+      <div class="question-card" id="qcard-9">
+        <p class="q-text">9. Point C(2, 4) is dilated by a scale factor of 2 centered at the origin. New coordinates?</p>
+        <input class="text-input" id="q9" placeholder="(4, 8)" oninput="handleTextInput('q9')">
+        <div class="feedback-chip" id="fb-9"></div>
+      </div>
+
+      <div class="question-card" id="qcard-10">
+        <p class="q-text">10. If a figure is dilated by <em>k = 1/2</em>, the new figure is ______ the original.</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q10','correct')"><input type="radio" name="q10" value="correct"><span class="mc-letter">A</span><span class="mc-label">Smaller than</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q10','wrong')"><input type="radio" name="q10" value="wrong"><span class="mc-letter">B</span><span class="mc-label">Larger than</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q10','wrong')"><input type="radio" name="q10" value="wrong"><span class="mc-letter">C</span><span class="mc-label">Congruent to</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-10"></div>
+      </div>
+
+      <div class="question-card" id="qcard-11">
+        <p class="q-text">11. Similar figures have proportional side lengths and equal corresponding angles. (True/False)</p>
+        <input class="text-input" id="q11" placeholder="True or False" oninput="handleTextInput('q11')">
+        <div class="feedback-chip" id="fb-11"></div>
+      </div>
+
+      <div class="question-card" id="qcard-12">
+        <p class="q-text">12. A dilation is the only transformation that creates <b>similar</b> but not congruent figures.</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q12','correct')"><input type="radio" name="q12" value="correct"><span class="mc-letter">A</span><span class="mc-label">True</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q12','wrong')"><input type="radio" name="q12" value="wrong"><span class="mc-letter">B</span><span class="mc-label">False</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-12"></div>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header"><span class="section-badge">Part 3</span><span class="section-title">Angle Relationships</span></div>
+
+      <div class="question-card" id="qcard-13">
+        <p class="q-text">13. The sum of the interior angles of a triangle is always _______ degrees.</p>
+        <input class="text-input" id="q13" placeholder="180" oninput="handleTextInput('q13')">
+        <div class="feedback-chip" id="fb-13"></div>
+      </div>
+
+      <div class="question-card" id="qcard-14">
+        <p class="q-text">14. Two angles in a triangle are 40° and 60°. What is the third angle?</p>
+        <input class="text-input" id="q14" placeholder="80" oninput="handleTextInput('q14')">
+        <div class="feedback-chip" id="fb-14"></div>
+      </div>
+
+      <div class="question-card" id="qcard-15">
+        <p class="q-text">15. Exterior Angle Theorem: An exterior angle equals the sum of its two remote interior angles.</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q15','correct')"><input type="radio" name="q15" value="correct"><span class="mc-letter">A</span><span class="mc-label">True</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q15','wrong')"><input type="radio" name="q15" value="wrong"><span class="mc-letter">B</span><span class="mc-label">False</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-15"></div>
+      </div>
+
+      <div class="question-card" id="qcard-16">
+        <p class="q-text">16. Alternate interior angles created by a transversal cutting parallel lines are:</p>
+        <div class="mc-grid">
+          <label class="mc-option" onclick="selectMC(this,'q16','correct')"><input type="radio" name="q16" value="correct"><span class="mc-letter">A</span><span class="mc-label">Equal</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q16','wrong')"><input type="radio" name="q16" value="wrong"><span class="mc-letter">B</span><span class="mc-label">Complementary</span></label>
+          <label class="mc-option" onclick="selectMC(this,'q16','wrong')"><input type="radio" name="q16" value="wrong"><span class="mc-letter">C</span><span class="mc-label">Supplementary (Add to 180)</span></label>
+        </div>
+        <div class="feedback-chip" id="fb-16"></div>
+      </div>
+
+      <div class="question-card" id="qcard-17">
+        <p class="q-text">17. Vertical angles are always equal to each other. (True/False)</p>
+        <input class="text-input" id="q17" placeholder="True" oninput="handleTextInput('q17')">
+        <div class="feedback-chip" id="fb-17"></div>
+      </div>
+
+      <div class="question-card" id="qcard-18">
+        <p class="q-text">18. Corresponding angles are in the same relative position at each intersection. (True/False)</p>
+        <input class="text-input" id="q18" placeholder="True" oninput="handleTextInput('q18')">
+        <div class="feedback-chip" id="fb-18"></div>
+      </div>
+
+      <div class="question-card" id="qcard-19">
+        <p class="q-text">19. If two lines are parallel, same-side interior angles add up to _____ degrees.</p>
+        <input class="text-input" id="q19" placeholder="180" oninput="handleTextInput('q19')">
+        <div class="feedback-chip" id="fb-19"></div>
+      </div>
+
+      <div class="question-card" id="qcard-20">
+        <p class="q-text">20. The "AA Similarity Criterion" says triangles are similar if 2 angles are equal. (True/False)</p>
+        <input class="text-input" id="q20" placeholder="True" oninput="handleTextInput('q20')">
+        <div class="feedback-chip" id="fb-20"></div>
+      </div>
+    </div>
+  </form>
+
+  <button class="btn-submit" id="btnSubmit" onclick="gradeAssessment()">Submit & Grade Assessment</button>
+
+  <div class="results-panel" id="resultsPanel">
+    <h2 id="finalScore">Score: 0/20</h2>
+    <p id="resultsMsg"></p>
+    <button onclick="location.reload()" style="margin-top:20px; background:var(--surface2); color:white; border:1px solid var(--border); padding:10px 20px; border-radius:8px; cursor:pointer;">Retry Test</button>
+  </div>
+</div>
+
+<script>
+const TOTAL = 20;
+const answered = {};
+const submitted = false;
+
+const ANSWERS = {
+  q2: { accept: ['(-2,5)', '-2,5', '-2, 5'], expl: 'Reflecting across the y-axis changes the sign of the x-coordinate.' },
+  q3: { accept: ['(-4,1)', '-4,1', '-4, 1'], expl: 'Rule for 90° CCW: (x, y) -> (-y, x).' },
+  q5: { accept: ['(x-3,y+4)', 'x-3,y+4'], expl: 'Left 3 = x-3. Up 4 = y+4.' },
+  q6: { accept: ['true'], expl: 'A reflection creates a mirror image.' },
+  q7: { accept: ['true'], expl: 'Congruent means same shape and same size.' },
+  q8: { accept: ['true'], expl: 'k > 1 enlarges the figure.' },
+  q9: { accept: ['(4,8)', '4,8', '4, 8'], expl: 'Multiply both x and y by the scale factor: 2(2)=4, 2(4)=8.' },
+  q11: { accept: ['true'], expl: 'Similarity preserves shape, not necessarily size.' },
+  q13: { accept: ['180'], expl: 'Triangle Angle Sum Theorem.' },
+  q14: { accept: ['80'], expl: '180 - (40 + 60) = 80.' },
+  q17: { accept: ['true'], expl: 'Vertical angles are formed by intersecting lines.' },
+  q18: { accept: ['true'], expl: 'They are congruent if the lines are parallel.' },
+  q19: { accept: ['180'], expl: 'Same-side interior angles are supplementary.' },
+  q20: { accept: ['true'], expl: 'If two angles are the same, the third must also be the same.' }
+};
+
+const MC_EXPLANATIONS = {
+  q1: 'Translation is a rigid motion slide.',
+  q4: 'Dilations change the size, making the figures similar, not congruent.',
+  q10: 'Scale factors between 0 and 1 reduce the size.',
+  q12: 'Only dilations change the size of the shape.',
+  q15: 'Exterior Angle = Remote Interior Angle 1 + Remote Interior Angle 2.',
+  q16: 'Alternate interior angles are congruent when lines are parallel.'
+};
+
+function selectMC(el, qId, val) {
+  el.closest('.mc-grid').querySelectorAll('.mc-option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  answered[qId] = { val, type: 'mc' };
+  updateDash();
+}
+
+function handleTextInput(qId) {
+  const v = document.getElementById(qId).value.trim().toLowerCase();
+  if(v) answered[qId] = { val: v, type: 'text' }; else delete answered[qId];
+  updateDash();
+}
+
+function updateDash() {
+  const count = Object.keys(answered).length;
+  document.getElementById('dash-answered').textContent = count;
+  document.getElementById('dash-remaining').textContent = TOTAL - count;
+  document.getElementById('progressFill').style.width = (count/TOTAL*100)+'%';
+}
+
+function gradeAssessment() {
+  let score = 0;
+  for(let i=1; i<=TOTAL; i++) {
+    const qId = 'q'+i;
+    const ans = answered[qId];
+    let isCorrect = false;
+    if(ans) {
+      if(ans.type === 'mc') isCorrect = (ans.val === 'correct');
+      else isCorrect = ANSWERS[qId].accept.some(a => ans.val.replace(/\s/g,'').includes(a.replace(/\s/g,'')));
+    }
+    if(isCorrect) score++;
+    revealFeedback(qId, isCorrect);
+  }
+  document.getElementById('resultsPanel').classList.add('show');
+  document.getElementById('finalScore').textContent = `Score: ${score} / 20`;
+  document.getElementById('dash-score').textContent = score;
+  document.getElementById('dash-pct').textContent = (score/TOTAL*100)+'%';
+  window.scrollTo(0, document.body.scrollHeight);
+}
+
+function revealFeedback(qId, isCorrect) {
+  const card = document.getElementById('qcard-'+qId.replace('q',''));
+  const fb = document.getElementById('fb-'+qId.replace('q',''));
+  card.style.borderColor = isCorrect ? 'var(--green)' : 'var(--red)';
+  fb.classList.add('show', isCorrect ? 'correct' : 'incorrect');
+  fb.innerHTML = `<strong>${isCorrect ? '✓ Correct' : '✗ Incorrect'}</strong><br>${MC_EXPLANATIONS[qId] || ANSWERS[qId]?.expl || ''}`;
+}
+</script>
+</body>
+</html>
